@@ -42,7 +42,7 @@ function populateShows(shows) {
   const $showsList = $("#shows-list");
   // Why commented out & kept?
   // keep incase... debugging etc?
-  // $showsList.empty();
+  $showsList.empty();
 
   // check within showRespone.image for a url
       // if there isn't make sure we dont break other cards
@@ -60,6 +60,7 @@ function populateShows(shows) {
            <div class="card-body">
              <h5 class="card-title">${show.name}</h5>
              <p class="card-text">${show.summary}</p>
+             <button class="toggle-episodes">Episodes</button>
            </div>
          </div>
        </div>
@@ -69,6 +70,11 @@ function populateShows(shows) {
   }
 }
 
+$(".toggle-episodes").add("click", handleShowEpisodes);
+
+function handleShowEpisodes(event) {
+
+}
 
 /** Handle search form submission:
  *    - hide episodes area
@@ -100,7 +106,35 @@ async function getEpisodes(id) {
   // TODO: get episodes from tvmaze
   //       you can get this by making GET request to
   //       http://api.tvmaze.com/shows/SHOW-ID-HERE/episodes
-// let showEpisodes = 
+  const episodeResponse = await axios.get(`http://api.tvmaze.com/shows/${id}/episodes`);
+  let episodesInfo = [];
+  for (let episode of episodeResponse.data) {
+    const {id, name, season, number} = episode;
+    episodesInfo.push({id, name, season, number});
+  }
+  return episodesInfo;
+  // take an id and plug in that id into the api call.
+  // take the response and assign it to a variable.
+  // create an array with each episode's id, name, season, episodeNumber as an object and return that array.
 
   // TODO: return array-of-episode-info, as described in docstring above
+}
+
+function populateEpisodes(episodesInfo) {
+  for (let episode of episodesInfo) {
+    let $newLi = $("<li>");
+    const {name, season, number} = episode;
+    $newLi.text(`${name} (season ${season}, episode ${number})`);
+    console.log($newLi);
+    $("#episode-list").append($newLi);
+  }
+}
+
+// iterate over the episodesInfo. For each episode,
+// create a <li>${name} (season ${season}, episode ${number})</li>
+// Take each new list tag and append it to the #episode-list.
+
+async function madeUp() {
+  let episodeInfo = await getEpisodes(1);
+  populateEpisodes(episodeInfo);
 }
