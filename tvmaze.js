@@ -15,15 +15,19 @@
  */
 
 async function searchShows(query) {
-  // TODO: Make an ajax request to the searchShows api.  Remove hard coded data.
-  let showResponse = await axios.get("http://api.tvmaze.com/singlesearch/shows", {params: {q: query}});
+  let showResponse = await axios.get(
+    "http://api.tvmaze.com/singlesearch/shows", 
+    {params: 
+      {q: query}
+    });
   // console.log(showResponse);
+  let {id, name, summary, image} = showResponse.data;
   return [
     {
-      id: showResponse.data.id,
-      name: showResponse.data.name,
-      summary: showResponse.data.summary,
-      image: showResponse.data.image.original
+      id,
+      name,
+      summary,
+      image
     }
   ]
 }
@@ -36,24 +40,23 @@ async function searchShows(query) {
 
 function populateShows(shows) {
   const $showsList = $("#shows-list");
+  // Why commented out & kept?
+  // keep incase... debugging etc?
   // $showsList.empty();
 
   // check within showRespone.image for a url
       // if there isn't make sure we dont break other cards
       // use given URL OR default /missing-image.png
   
-
-
   for (let show of shows) {
     
-    if (show.image === undefined) show.image = `/missing-image.png`
-    
+    if (show.image.original === undefined) show.image.original = `/missing-image.png`
 
     console.log(show.image);
     let $item = $(
       `<div class="col-md-6 col-lg-3 Show" data-show-id="${show.id}">
          <div class="card" data-show-id="${show.id}">
-         <img class="card-img-top" src="${show.image}">
+         <img class="card-img-top" src="${show.image.original}">
            <div class="card-body">
              <h5 class="card-title">${show.name}</h5>
              <p class="card-text">${show.summary}</p>
@@ -71,7 +74,7 @@ function populateShows(shows) {
  *    - hide episodes area
  *    - get list of matching shows and show in shows list
  */
-
+// practice how to run function from the console
 async function doAndShowSearch() {
   let query = $("#search-query").val();
   if (!query) return;
@@ -97,6 +100,7 @@ async function getEpisodes(id) {
   // TODO: get episodes from tvmaze
   //       you can get this by making GET request to
   //       http://api.tvmaze.com/shows/SHOW-ID-HERE/episodes
+// let showEpisodes = 
 
   // TODO: return array-of-episode-info, as described in docstring above
 }
