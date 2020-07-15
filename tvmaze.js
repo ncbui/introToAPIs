@@ -16,22 +16,14 @@
 
 async function searchShows(query) {
   // TODO: Make an ajax request to the searchShows api.  Remove hard coded data.
-
+  let showResponse = await axios.get("http://api.tvmaze.com/singlesearch/shows", {params: {q: query}});
+  // console.log(showResponse);
   return [
     {
-      id: 1767,
-      name: "The Bletchley Circle",
-      summary:
-        `<p><b>The Bletchley Circle</b> follows the journey of four ordinary 
-           women with extraordinary skills that helped to end World War II.</p>
-         <p>Set in 1952, Susan, Millie, Lucy and Jean have returned to their 
-           normal lives, modestly setting aside the part they played in 
-           producing crucial intelligence, which helped the Allies to victory 
-           and shortened the war. When Susan discovers a hidden code behind an
-           unsolved murder she is met by skepticism from the police. She 
-           quickly realises she can only begin to crack the murders and bring
-           the culprit to justice with her former friends.</p>`,
-      image: "http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg"
+      id: showResponse.data.id,
+      name: showResponse.data.name,
+      summary: showResponse.data.summary,
+      image: showResponse.data.image.original
     }
   ]
 }
@@ -44,12 +36,24 @@ async function searchShows(query) {
 
 function populateShows(shows) {
   const $showsList = $("#shows-list");
-  $showsList.empty();
+  // $showsList.empty();
+
+  // check within showRespone.image for a url
+      // if there isn't make sure we dont break other cards
+      // use given URL OR default /missing-image.png
+  
+
 
   for (let show of shows) {
+    
+    if (show.image === undefined) show.image = `/missing-image.png`
+    
+
+    console.log(show.image);
     let $item = $(
       `<div class="col-md-6 col-lg-3 Show" data-show-id="${show.id}">
          <div class="card" data-show-id="${show.id}">
+         <img class="card-img-top" src="${show.image}">
            <div class="card-body">
              <h5 class="card-title">${show.name}</h5>
              <p class="card-text">${show.summary}</p>
@@ -58,7 +62,7 @@ function populateShows(shows) {
        </div>
       `);
 
-    $showsList.append($item);
+    $showsList.prepend($item);
   }
 }
 
