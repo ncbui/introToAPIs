@@ -1,3 +1,4 @@
+
 /** Search Shows
  *    - given a search term, search for tv shows that
  *      match that query.  The function is async show it
@@ -32,8 +33,6 @@ async function searchShows(query) {
   ]
 }
 
-
-
 /** Populate shows list:
  *     - given list of shows, add shows to DOM
  */
@@ -52,7 +51,6 @@ function populateShows(shows) {
     
     if (show.image.original === undefined) show.image.original = `/missing-image.png`
 
-    console.log(show.image);
     let $item = $(
       `<div class="col-md-6 col-lg-3 Show" data-show-id="${show.id}">
          <div class="card" data-show-id="${show.id}">
@@ -70,11 +68,16 @@ function populateShows(shows) {
   }
 }
 
-$(".toggle-episodes").add("click", handleShowEpisodes);
+$("#shows-list").on("click", ".toggle-episodes", handleShowEpisodes);
 
-function handleShowEpisodes(event) {
-
+async function handleShowEpisodes(event) {
+  let showId = $(event.target).closest(".card").attr("data-show-id");
+  let episodeInfo = await getEpisodes(showId);
+  // Break
+  populateEpisodes(episodeInfo);
+  $("#episodes-area").show();
 }
+
 
 /** Handle search form submission:
  *    - hide episodes area
@@ -121,20 +124,20 @@ async function getEpisodes(id) {
 }
 
 function populateEpisodes(episodesInfo) {
+  console.log("This is episodes info", episodesInfo);
+  $("#episodes-list").empty();
   for (let episode of episodesInfo) {
+    console.log("loop");
     let $newLi = $("<li>");
     const {name, season, number} = episode;
     $newLi.text(`${name} (season ${season}, episode ${number})`);
     console.log($newLi);
-    $("#episode-list").append($newLi);
+    let $epsList = $("#episodes-list")
+    console.log("this is episode list", $epsList);
+    $epsList.append($newLi);
   }
 }
 
 // iterate over the episodesInfo. For each episode,
 // create a <li>${name} (season ${season}, episode ${number})</li>
 // Take each new list tag and append it to the #episode-list.
-
-async function madeUp() {
-  let episodeInfo = await getEpisodes(1);
-  populateEpisodes(episodeInfo);
-}
