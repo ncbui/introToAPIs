@@ -1,3 +1,25 @@
+/** Handle search form submission:
+ *    - hide episodes area
+ *    - get list of matching shows and show in shows list
+ */
+// practice how to run function from the console
+async function doAndShowSearch() {
+  let query = $("#search-query").val();
+  if (!query) return;
+
+  $("#episodes-area").hide();
+
+  let shows = await searchShows(query);
+
+  populateShows(shows);
+}
+
+$("#search-form").on("submit", function (evt) {
+  evt.preventDefault();
+  doAndShowSearch();
+});
+
+
 /** Search Shows
  *    - given a search term, search for tv shows that
  *      match that query.  The function is async show it
@@ -42,7 +64,7 @@ function populateShows(shows) {
   const $showsList = $("#shows-list");
   // Why commented out & kept?
   // keep incase... debugging etc?
-  $showsList.empty();
+  // $showsList.empty();
 
   // check within showRespone.image for a url
       // if there isn't make sure we dont break other cards
@@ -52,7 +74,7 @@ function populateShows(shows) {
     
     if (show.image.original === undefined) show.image.original = `/missing-image.png`
 
-    console.log(show.image);
+    // console.log(show.image);
     let $item = $(
       `<div class="col-md-6 col-lg-3 Show" data-show-id="${show.id}">
          <div class="card" data-show-id="${show.id}">
@@ -70,32 +92,38 @@ function populateShows(shows) {
   }
 }
 
-$(".toggle-episodes").add("click", handleShowEpisodes);
+// $(".toggle-episodes").add("click", handleShowEpisodes);
 
-function handleShowEpisodes(event) {
+// $('div.card button').on("click", handleShowEpisodes);
 
+
+$('#shows-list').on("click", ".toggle-episodes" , handleShowEpisodes);
+
+async function handleShowEpisodes(event) {
+  console.log(event.target)
+  let $showId = $(event.target).closest("div.card").attr("data-show-id")
+  console.log($showId)
+
+  await getEpisodes($showId)
+  let newEpisodeListing = createEpisodesListing($showId)
+  let episodeElements = populateEpisodes(newEpisodeListing) 
+  // episodeElement contains array of elements
+  // for each episode, append 
+  for (let episode of episodeElements){
+    $('#episodes-list').append(episode);
+  }
+  console.log(episodeElements)
+  // $('#episodes-list').append(episodeElements)// added through populate episodes
+  // toggles display on the episodes-area div
+  // $('.episodes-area').css("display", "inline-block" )
+  $('.episodes-area').show()
+  
+  console.log(newEpisodeListing)
+  // append to episodes-list
+  // toggles display of #episodes-area
+  
 }
 
-/** Handle search form submission:
- *    - hide episodes area
- *    - get list of matching shows and show in shows list
- */
-// practice how to run function from the console
-async function doAndShowSearch() {
-  let query = $("#search-query").val();
-  if (!query) return;
-
-  $("#episodes-area").hide();
-
-  let shows = await searchShows(query);
-
-  populateShows(shows);
-}
-
-$("#search-form").on("submit", function (evt) {
-  evt.preventDefault();
-  doAndShowSearch();
-});
 
 
 /** Given a show ID, return list of episodes:
@@ -109,8 +137,8 @@ async function getEpisodes(id) {
   const episodeResponse = await axios.get(`http://api.tvmaze.com/shows/${id}/episodes`);
   let episodesInfo = [];
   for (let episode of episodeResponse.data) {
-    const {id, name, season, number} = episode;
-    episodesInfo.push({id, name, season, number});
+    const {episodeID, name, season, number} = episode;
+    episodesInfo.push({episodeID, name, season, number});
   }
   return episodesInfo;
   // take an id and plug in that id into the api call.
@@ -120,21 +148,27 @@ async function getEpisodes(id) {
   // TODO: return array-of-episode-info, as described in docstring above
 }
 
+async function createEpisodesListing(id) {
+  let episodeInfo = await getEpisodes(id);
+  populateEpisodes(episodeInfo);
+  // console.log(populateEpisodes(episodeInfo))
+}
+
 function populateEpisodes(episodesInfo) {
+  let episodesToPopulate = []
   for (let episode of episodesInfo) {
     let $newLi = $("<li>");
     const {name, season, number} = episode;
     $newLi.text(`${name} (season ${season}, episode ${number})`);
     console.log($newLi);
-    $("#episode-list").append($newLi);
+    episodesToPopulate.push($newLi) 
+    // Adding appending function to handleShowEpisodes to keep functions functionally separate
+    // $("#episode-list").append($newLi);
   }
+  return episodesToPopulate;
 }
 
 // iterate over the episodesInfo. For each episode,
 // create a <li>${name} (season ${season}, episode ${number})</li>
 // Take each new list tag and append it to the #episode-list.
 
-async function madeUp() {
-  let episodeInfo = await getEpisodes(1);
-  populateEpisodes(episodeInfo);
-}
