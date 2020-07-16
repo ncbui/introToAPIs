@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /** Handle search form submission:
  *    - hide episodes area
  *    - get list of matching shows and show in shows list
@@ -19,6 +20,8 @@ $("#search-form").on("submit", function (evt) {
   doAndShowSearch();
 });
 
+=======
+>>>>>>> 977f38ecbfccf6ee08cde3df4c55ca68a0f99e63
 
 /** Search Shows
  *    - given a search term, search for tv shows that
@@ -54,8 +57,6 @@ async function searchShows(query) {
   ]
 }
 
-
-
 /** Populate shows list:
  *     - given list of shows, add shows to DOM
  */
@@ -74,7 +75,6 @@ function populateShows(shows) {
     
     if (show.image.original === undefined) show.image.original = `/missing-image.png`
 
-    // console.log(show.image);
     let $item = $(
       `<div class="col-md-6 col-lg-3 Show" data-show-id="${show.id}">
          <div class="card" data-show-id="${show.id}">
@@ -92,10 +92,25 @@ function populateShows(shows) {
   }
 }
 
-// $(".toggle-episodes").add("click", handleShowEpisodes);
+$("#shows-list").on("click", ".toggle-episodes", handleShowEpisodes);
 
-// $('div.card button').on("click", handleShowEpisodes);
+async function handleShowEpisodes(event) {
+  let showId = $(event.target).closest(".card").attr("data-show-id");
+  let episodeInfo = await getEpisodes(showId);
+  // Break
+  populateEpisodes(episodeInfo);
+  $("#episodes-area").show();
+}
 
+
+/** Handle search form submission:
+ *    - hide episodes area
+ *    - get list of matching shows and show in shows list
+ */
+// practice how to run function from the console
+async function doAndShowSearch() {
+  let query = $("#search-query").val();
+  if (!query) return;
 
 $('#shows-list').on("click", ".toggle-episodes" , handleShowEpisodes);
 
@@ -155,15 +170,17 @@ async function createEpisodesListing(id) {
 }
 
 function populateEpisodes(episodesInfo) {
-  let episodesToPopulate = []
+  console.log("This is episodes info", episodesInfo);
+  $("#episodes-list").empty();
   for (let episode of episodesInfo) {
+    console.log("loop");
     let $newLi = $("<li>");
     const {name, season, number} = episode;
     $newLi.text(`${name} (season ${season}, episode ${number})`);
     console.log($newLi);
-    episodesToPopulate.push($newLi) 
-    // Adding appending function to handleShowEpisodes to keep functions functionally separate
-    // $("#episode-list").append($newLi);
+    let $epsList = $("#episodes-list")
+    console.log("this is episode list", $epsList);
+    $epsList.append($newLi);
   }
   return episodesToPopulate;
 }
@@ -171,4 +188,3 @@ function populateEpisodes(episodesInfo) {
 // iterate over the episodesInfo. For each episode,
 // create a <li>${name} (season ${season}, episode ${number})</li>
 // Take each new list tag and append it to the #episode-list.
-
